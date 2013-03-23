@@ -35,6 +35,6 @@ echo "ADDRESS: $ADDRESS"
 echo "DRONE_IP: $DRONEIP"
 
 {( sleep 1; echo "\
-  wpa_passphrase '$ESSID' '$PASSWORD' >> /etc/wpa_supplicant.conf
+  wpa_passphrase '$ESSID' '$PASSWORD' > /etc/wpa_supplicant.conf
   { ifconfig ath0 $ADDRESS; iwconfig ath0 essid '$ESSID' && wpa_supplicant -B -Dwext -iath0 -c/etc/wpa_supplicant.conf; } &
 "; ) | telnet $DRONEIP > /dev/null; }
