@@ -48,7 +48,7 @@ TODO
 
 - Improve scripts (i.e. parse params with getopts).
 - Add support to create a WPA2 network with the drone.
-- Add DHCP client support.
+- ~~Add DHCP client support.~~
 - Code internal scripts / deamons to handle authentication inside the drone.
 - Not so related, but would be cool to add hostname resolution.
 
@@ -62,7 +62,7 @@ License
 =======
 ---
 
-@daraosn, MIT (see LICENSE)
+ardrone-wpa2 @daraosn, MIT (see LICENSE)
 
 wpa_supplicant (BSD licensed)
 Copyright (c) 2003-2013, Jouni Malinen <j@w1.fi> and contributors.

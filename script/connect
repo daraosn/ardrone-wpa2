@@ -10,11 +10,15 @@ cat << EOF
 
 This script connects the AR Drone to a WPA/WPA2 secured network.
 
-Usage: script/connect "<essid>" -p "<password>" -a <address> [-d <droneip>]
+Usage: script/connect "<essid>" -p "<password>" [-a <address>] [-d <droneip>]
   <essid>         Name of the WPA2 network to connect the drone to.
   <password>      Password of the network.
-  <address>       Address to be set on the drone. Use a different address than the router's default.
-  <droneip>       (optional) Current drone's ip address. Default is 192.168.1.1
+  <address>       (optional) Address to be set on the drone when connected to the network.
+                    Use a different address than the router's default.
+                    Set to "auto" or "dhcp" to let the router DHCP server auto-assign an IP.
+                    Default is "auto".
+  <droneip>       (optional) Current drone's ip address.
+                    Default is 192.168.1.1
 EOF
 }
 
@@ -22,8 +26,16 @@ ESSID=$1
 PASSWORD=$3
 ADDRESS=$5
 DRONEIP=${7:-"192.168.1.1"}
+DHCPC=""
 
-if [[ -z $ESSID ]] || [[ -z $PASSWORD ]] || [[ -z $ADDRESS ]]; then
+if [[ -z $ADDRESS ]] || [[ $ADDRESS = "auto" ]] || [[ $ADDRESS = "dhcp" ]]; then
+  DHCPC="; wait 5; /sbin/udhcpc -i ath0"
+  ADDRESS="0.0.0.0"
+fi
+
+IFCONFIG="ifconfig ath0 $ADDRESS;"
+
+if [[ -z $ESSID ]] || [[ -z $PASSWORD ]]; then
   usage; exit 1
 fi
 
@@ -34,7 +46,7 @@ echo "PASSWORD: $PASSWORD"
 echo "ADDRESS: $ADDRESS"
 echo "DRONE_IP: $DRONEIP"
 
-{( sleep 1; echo "\
+{( echo "\
   wpa_passphrase '$ESSID' '$PASSWORD' > /etc/wpa_supplicant.conf
-  { ifconfig ath0 $ADDRESS; iwconfig ath0 essid '$ESSID' && wpa_supplicant -B -Dwext -iath0 -c/etc/wpa_supplicant.conf; } &
-"; ) | telnet $DRONEIP > /dev/null; }
+  { $IFCONFIG iwconfig ath0 essid '$ESSID' && wpa_supplicant -B -Dwext -iath0 -c/etc/wpa_supplicant.conf $DHCPC; } &
+"; sleep 1; ) | telnet $DRONEIP > /dev/null; }
